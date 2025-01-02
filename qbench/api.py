@@ -59,7 +59,7 @@ class QBenchAPI:
         url = f"{entity_type}/{object_id}" if object_id else f"{entity_type}?page_num={page_num or 1}"
         return self._make_request("GET", url)
 
-    async def _fetch_page_with_retry(self, session: aiohttp.ClientSession, entity_type: str, page_num: int, total_pages: int, addl_params: str) -> List[dict]:
+    async def _fetch_page_with_retry(self, session: aiohttp.ClientSession, base_url: str, entity_type: str, page_num: int, total_pages: int, addl_params: str) -> List[dict]:
         """
         Asynchronously fetches a page of entities with retry logic for handling rate limits.
 
@@ -74,8 +74,7 @@ class QBenchAPI:
             List[dict]: Data from the requested page.
         """
         retries = 5
-        page_url = f"{self._base_url}/{entity_type}?page_num={page_num}&page_size=50{addl_params}"
-        
+        page_url = f"{base_url}/{entity_type}?page_num={page_num}&page_size=50{addl_params}"
         for attempt in range(retries):
             try:
                 async with session.get(page_url) as response:
@@ -118,7 +117,7 @@ class QBenchAPI:
                 entity_array.extend(result.get('data', []))
 
                 tasks = [
-                    self._fetch_page_with_retry(session, entity_type, page, total_pages, addl_params)
+                    self._fetch_page_with_retry(session, base_url, entity_type, page, total_pages, addl_params)
                     for page in range(2, total_pages + 1)
                 ]
 
@@ -153,7 +152,7 @@ class QBenchAPI:
         Returns:
             dict: List of customer data.
         """
-        return asyncio.run(self._get_entity_list('customers', use_v1_endpoint=True, page_limit=page_limit, **kwargs))
+        return asyncio.run(self._get_entity_list('customer', use_v1_endpoint=True, page_limit=page_limit, **kwargs))
 
     async def get_customer_list_async(self, page_limit: Optional[int] = None, **kwargs) -> dict:
         """
@@ -166,7 +165,7 @@ class QBenchAPI:
         Returns:
             dict: List of customer data.
         """
-        return await self._get_entity_list('customers', use_v1_endpoint=True, page_limit=page_limit, **kwargs)
+        return await self._get_entity_list('customer', use_v1_endpoint=True, page_limit=page_limit, **kwargs)
 
     def get_order(self, order_id: int) -> dict:
         """
@@ -243,3 +242,283 @@ class QBenchAPI:
             dict: List of sample data.
         """
         return await self._get_entity_list('samples', page_limit=page_limit, **kwargs)
+    
+    def get_document(self, document_id: int) -> dict:
+        """
+        Retrieves a specific document by ID. As of 12/6/2024, documents are only accessible via v1 API
+
+        Args:
+            document_id (int): ID of the document.
+
+        Returns:
+            dict: Document data.
+        """
+        return self._get_entity('document', use_v1_endpoint=True, object_id=document_id)
+    
+    def get_document_list(self, page_limit: Optional[int] = None, **kwargs) -> dict:
+        """
+        Synchronously retrieves a list of documents with optional pagination.
+        As of 12/6/2024, documents are only accessible via v1 API
+
+        Args:
+            page_limit (int, optional): Maximum number of pages to retrieve.
+            **kwargs: Additional parameters for the API request.
+
+        Returns:
+            dict: List of document data.
+        """
+        return asyncio.run(self._get_entity_list('document', use_v1_endpoint=True, page_limit=page_limit, **kwargs))
+
+    async def get_document_list_async(self, page_limit: Optional[int] = None, **kwargs) -> dict:
+        """
+        Asynchronously retrieves a list of documents with optional pagination.
+        As of 12/6/2024, documents are only accessible via v1 API
+
+        Args:
+            page_limit (int, optional): Maximum number of pages to retrieve.
+            **kwargs: Additional parameters for the API request.
+
+        Returns:
+            dict: List of document data.
+        """
+        return await self._get_entity_list('document', use_v1_endpoint=True, page_limit=page_limit, **kwargs)
+    
+    def get_contact(self, contact_id: int) -> dict:
+        """
+        Retrieves a specific contact by ID.
+
+        Args:
+            object_id (int): ID of the contact.
+
+        Returns:
+            dict: contact data.
+        """
+        return self._get_entity('contacts', object_id=contact_id)
+    
+    def get_contact_list(self, page_limit: Optional[int] = None, **kwargs) -> dict:
+        """
+        Synchronously retrieves a list of contacts with optional pagination.
+
+        Args:
+            page_limit (int, optional): Maximum number of pages to retrieve.
+            **kwargs: Additional parameters for the API request.
+
+        Returns:
+            dict: List of contact data.
+        """
+        return asyncio.run(self._get_entity_list('contact', use_v1_endpoint=True, page_limit=page_limit, **kwargs))
+
+    async def get_contact_list_async(self, page_limit: Optional[int] = None, **kwargs) -> dict:
+        """
+        Asynchronously retrieves a list of contacts with optional pagination.
+
+        Args:
+            page_limit (int, optional): Maximum number of pages to retrieve.
+            **kwargs: Additional parameters for the API request.
+
+        Returns:
+            dict: List of contact data.
+        """
+        return await self._get_entity_list('contact', use_v1_endpoint=True, page_limit=page_limit, **kwargs)
+    
+    def get_assay(self, assay_id: int) -> dict:
+        """
+        Retrieves a specific assay by ID.
+
+        Args:
+            object_id (int): ID of the assay.
+
+        Returns:
+            dict: assay data.
+        """
+        return self._get_entity('assays', object_id=assay_id)
+    
+    def get_assay_list(self, page_limit: Optional[int] = None, **kwargs) -> dict:
+        """
+        Synchronously retrieves a list of assays with optional pagination.
+
+        Args:
+            page_limit (int, optional): Maximum number of pages to retrieve.
+            **kwargs: Additional parameters for the API request.
+
+        Returns:
+            dict: List of assay data.
+        """
+        return asyncio.run(self._get_entity_list('assay', use_v1_endpoint=True, page_limit=page_limit, **kwargs))
+
+    async def get_assay_list_async(self, page_limit: Optional[int] = None, **kwargs) -> dict:
+        """
+        Asynchronously retrieves a list of assays with optional pagination.
+
+        Args:
+            page_limit (int, optional): Maximum number of pages to retrieve.
+            **kwargs: Additional parameters for the API request.
+
+        Returns:
+            dict: List of assay data.
+        """
+        return await self._get_entity_list('assay', use_v1_endpoint=True, page_limit=page_limit, **kwargs)
+    
+    def get_payment(self, payment_id: int) -> dict:
+        """
+        Retrieves a specific payment by ID.
+
+        Args:
+            object_id (int): ID of the payment.
+
+        Returns:
+            dict: payment data.
+        """
+        return self._get_entity('payments', object_id=payment_id)
+    
+    def get_payment_list(self, page_limit: Optional[int] = None, **kwargs) -> dict:
+        """
+        Synchronously retrieves a list of payments with optional pagination.
+
+        Args:
+            page_limit (int, optional): Maximum number of pages to retrieve.
+            **kwargs: Additional parameters for the API request.
+
+        Returns:
+            dict: List of payment data.
+        """
+        return asyncio.run(self._get_entity_list('payment', use_v1_endpoint=True, page_limit=page_limit, **kwargs))
+
+    async def get_payment_list_async(self, page_limit: Optional[int] = None, **kwargs) -> dict:
+        """
+        Asynchronously retrieves a list of payments with optional pagination.
+
+        Args:
+            page_limit (int, optional): Maximum number of pages to retrieve.
+            **kwargs: Additional parameters for the API request.
+
+        Returns:
+            dict: List of payment data.
+        """
+        return await self._get_entity_list('payment', use_v1_endpoint=True, page_limit=page_limit, **kwargs)
+    
+    def get_panel(self, panel_id: int) -> dict:
+        """
+        Retrieves a specific panel by ID.
+
+        Args:
+            object_id (int): ID of the panel.
+
+        Returns:
+            dict: panel data.
+        """
+        return self._get_entity('panels', object_id=panel_id)
+    
+    def get_panel_list(self, page_limit: Optional[int] = None, **kwargs) -> dict:
+        """
+        Synchronously retrieves a list of panels with optional pagination.
+
+        Args:
+            page_limit (int, optional): Maximum number of pages to retrieve.
+            **kwargs: Additional parameters for the API request.
+
+        Returns:
+            dict: List of panel data.
+        """
+        return asyncio.run(self._get_entity_list('panels', page_limit=page_limit, **kwargs))
+
+    async def get_panel_list_async(self, page_limit: Optional[int] = None, **kwargs) -> dict:
+        """
+        Asynchronously retrieves a list of panels with optional pagination.
+
+        Args:
+            page_limit (int, optional): Maximum number of pages to retrieve.
+            **kwargs: Additional parameters for the API request.
+
+        Returns:
+            dict: List of panel data.
+        """
+        return await self._get_entity_list('panels', page_limit=page_limit, **kwargs)
+    
+    def get_invoice(self, invoice_id: int) -> dict:
+        """
+        Retrieves a specific invoice by ID.
+
+        Args:
+            object_id (int): ID of the invoice.
+
+        Returns:
+            dict: invoice data.
+        """
+        return self._get_entity('invoices', object_id=invoice_id)
+    
+    def get_invoice_list(self, page_limit: Optional[int] = None, **kwargs) -> dict:
+        """
+        Synchronously retrieves a list of invoices with optional pagination.
+
+        Args:
+            page_limit (int, optional): Maximum number of pages to retrieve.
+            **kwargs: Additional parameters for the API request.
+
+        Returns:
+            dict: List of invoice data.
+        """
+        return asyncio.run(self._get_entity_list('invoices', page_limit=page_limit, **kwargs))
+
+    async def get_invoice_list_async(self, page_limit: Optional[int] = None, **kwargs) -> dict:
+        """
+        Asynchronously retrieves a list of invoices with optional pagination.
+
+        Args:
+            page_limit (int, optional): Maximum number of pages to retrieve.
+            **kwargs: Additional parameters for the API request.
+
+        Returns:
+            dict: List of invoice data.
+        """
+        return await self._get_entity_list('invoices', page_limit=page_limit, **kwargs)
+    
+    def get_report(self, report_id: int) -> dict:
+        """
+        Retrieves a specific report by ID.
+
+        Args:
+            object_id (int): ID of the report.
+
+        Returns:
+            dict: report data.
+        """
+        return self._get_entity('reports', object_id=report_id)
+    
+    def get_report_list(self, page_limit: Optional[int] = None, **kwargs) -> dict:
+        """
+        Synchronously retrieves a list of reports with optional pagination.
+
+        Args:
+            page_limit (int, optional): Maximum number of pages to retrieve.
+            **kwargs: Additional parameters for the API request.
+
+        Returns:
+            dict: List of report data.
+        """
+        return asyncio.run(self._get_entity_list('reports', page_limit=page_limit, **kwargs))
+
+    async def get_report_list_async(self, page_limit: Optional[int] = None, **kwargs) -> dict:
+        """
+        Asynchronously retrieves a list of reports with optional pagination.
+
+        Args:
+            page_limit (int, optional): Maximum number of pages to retrieve.
+            **kwargs: Additional parameters for the API request.
+
+        Returns:
+            dict: List of report data.
+        """
+        return await self._get_entity_list('reports', page_limit=page_limit, **kwargs)
+
+    def get_document_directory(self, directory_id: int) -> dict:
+        """
+        Retrieves a specific directory by ID.
+
+        Args:
+            customer_id (int): ID of the directory.
+
+        Returns:
+            dict: Customer data.
+        """
+        return self._get_entity('directory', use_v1_endpoint=True, object_id=directory_id)

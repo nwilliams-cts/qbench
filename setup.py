@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="qbench_api",
-    version="0.1.1",
+    version="0.1.3",
     description="Python library for connecting to the QBench API",
     author="Nick Williams, PhD",
     author_email="nwilliams@smithers.com",
