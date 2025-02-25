@@ -37,6 +37,7 @@ class QBenchAPI:
         """
         url = f"{self._base_url}/{endpoint}"
         headers = self._auth.get_headers()
+        
         try:
             response = requests.request(method, url, headers=headers, params=params, json=data)
             response.raise_for_status()
