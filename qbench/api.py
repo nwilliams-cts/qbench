@@ -1,9 +1,18 @@
 import requests
 import aiohttp
 import asyncio
+<<<<<<< HEAD
 from typing import List, Dict, Optional
 from .auth import QBenchAuth
 from .exceptions import QBenchAPIError
+=======
+import logging
+from typing import Optional, Dict
+from tenacity import retry, wait_exponential, stop_after_attempt
+from .auth import QBenchAuth
+from .exceptions import QBenchAPIError
+from .endpoints import QBENCH_ENDPOINTS
+>>>>>>> f78ae61 (init commit)
 
 
 class QBenchAPI:
@@ -21,20 +30,39 @@ class QBenchAPI:
         self._base_url = f"{base_url}/qbench/api/v2"
         self._base_url_v1 = f"{base_url}/qbench/api/v1"
         self._concurrency_limit = concurrency_limit  # Control API concurrency level
+<<<<<<< HEAD
 
     def _make_request(self, method: str, endpoint: str, params: Optional[dict] = None, data: Optional[dict] = None) -> dict:
+=======
+        self._session = requests.Session() # Reuse HTTP session
+        self._session.headers.update(self._auth.get_headers())
+
+
+    @retry(wait=wait_exponential(multiplier=2, min=1, max=10), stop=stop_after_attempt(5))
+    def _make_request(self, method: str, endpoint_key: str, use_v1: bool = False,
+                      params: Optional[dict] = None, data: Optional[dict] = None,
+                      path_params: Optional[dict] = None) -> dict:
+>>>>>>> f78ae61 (init commit)
         """
         Makes a synchronous request to the QBench API.
 
         Args:
             method (str): HTTP method ('GET', 'POST', etc.).
             endpoint (str): API endpoint path.
+<<<<<<< HEAD
             params (dict, optional): URL parameters for the request.
             data (dict, optional): JSON payload for the request.
+=======
+            use_v1 (bool): If True, use the v1 API. Else use v2.
+            params (dict, optional): URL parameters for the request.
+            data (dict, optional): JSON payload for the request.
+            path_params (dict, optional): Parameters to replace in the endpoint
+>>>>>>> f78ae61 (init commit)
 
         Returns:
             dict: JSON response from the API.
         """
+<<<<<<< HEAD
         url = f"{self._base_url}/{endpoint}"
         headers = self._auth.get_headers()
         
@@ -523,3 +551,84 @@ class QBenchAPI:
             dict: Customer data.
         """
         return self._get_entity('directory', use_v1_endpoint=True, object_id=directory_id)
+=======
+        if endpoint_key not in QBENCH_ENDPOINTS:
+            raise ValueError(f"Invalid API endpoint: {endpoint_key}")
+        
+        # Default to v2 unless explicitly set
+        version = "v1" if use_v1 else "v2"
+        base_url = f"{self._base_url_v1 if use_v1 else self._base_url}"
+
+        # Get the correct endpoint format
+        endpoint = QBENCH_ENDPOINTS[endpoint_key].get(version)
+        if not endpoint:
+            raise ValueError(f"Endpoint '{endpoint_key}' does not exist in version {version}")
+
+        # If path_params are provided, safely format the url
+        if path_params:
+            endpoint = endpoint.format(**path_params)
+
+        url = f"{base_url}/{endpoint}"
+
+        try:
+            response = self._session.request(method, url, params=params, json=data)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            logging.error(f"API request failed: {method.upper()} {url} - {e}")
+            raise QBenchAPIError(f"Error in {method.upper()} request to {url}: {e}")
+
+    async def _fetch_page(self, session: aiohttp.ClientSession, url: str, page: int, params: Dict) -> Dict:
+        final_url = f"{url}?page_num={page}&page_size=50"
+        async with session.get(final_url, params=params) as response:
+            response.raise_for_status()
+            return (await response.json()) or {'data': []}
+
+    async def _get_entity_list(self, endpoint_key: str, use_v1: bool = False, path_params: Optional[Dict] = {}, **kwargs):
+        version = "v1" if use_v1 else "v2"
+        base_url = f"{self._base_url_v1 if use_v1 else self._base_url}"
+
+        endpoint = QBENCH_ENDPOINTS[endpoint_key][version]
+        if path_params:
+            endpoint = endpoint.format(**path_params)
+
+        url = f"{base_url}/{endpoint}"
+
+        entity_array = []
+        async with aiohttp.ClientSession(headers=self._auth.get_headers()) as session:
+            page_1_res = await self._fetch_page(session, url, 1, kwargs)
+            page_1_data = page_1_res.get('data') or []
+
+            page_limit = page_1_res.get('total_pages') or 1
+            entity_array.extend(page_1_data)
+
+            if page_limit > 1:
+                tasks = [self._fetch_page(session, url, page, kwargs) for page in range(2, page_limit + 1)]
+                results = await asyncio.gather(*tasks)
+
+                for page_data in results:
+                    entity_array.extend(page_data.get('data') or [])
+
+        return {'data': entity_array}
+
+    def __getattr__(self, name):
+        # Overrides behavior of the get attr function to route different endpoints to their correct logic
+        if name not in QBENCH_ENDPOINTS:
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        
+        def dynamic_method(entity_id: Optional[int] = None, use_v1: bool = False, data: Optional[Dict] = None, **kwargs):
+            path_params = {"id": entity_id} if entity_id else {}
+            method = QBENCH_ENDPOINTS[name].get('method', 'GET')
+
+            if QBENCH_ENDPOINTS[name].get('paginated'):
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    return loop.create_task(self._get_entity_list(name, use_v1=use_v1, path_params=path_params, **kwargs))
+                else:
+                    return asyncio.run(self._get_entity_list(name, use_v1=use_v1, path_params=path_params, **kwargs))
+
+            else:
+                return self._make_request(method, name, use_v1=use_v1, path_params=path_params, data=data, params=kwargs)
+
+        return dynamic_method
+>>>>>>> f78ae61 (init commit)
