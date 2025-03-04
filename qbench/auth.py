@@ -18,12 +18,9 @@ class QBenchAuth:
         self._access_token = None
         self._token_expiry = 0
 
-<<<<<<< HEAD
-=======
         ## TODO: Get jwt and conduct a health check after initialization
         
 
->>>>>>> f78ae61 (init commit)
     def _base64_url_encode(self, data):
         """Helper to Base64 URL encode data without padding."""
         return urlsafe_b64encode(data).decode('utf-8').rstrip("=")
@@ -91,10 +88,5 @@ class QBenchAuth:
         access_token = self.get_access_token()
         return {
             "Authorization": f"Bearer {access_token}",
-<<<<<<< HEAD
-            "Content-Type": "applicaiton/json"
-        }
-=======
             "Content-Type": "application/json"
         }
->>>>>>> f78ae61 (init commit)
