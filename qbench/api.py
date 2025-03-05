@@ -115,12 +115,7 @@ class QBenchAPI:
             method = QBENCH_ENDPOINTS[name].get('method', 'GET')
 
             if QBENCH_ENDPOINTS[name].get('paginated'):
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    return loop.create_task(self._get_entity_list(name, use_v1=use_v1, path_params=path_params, **kwargs))
-                else:
-                    return asyncio.run(self._get_entity_list(name, use_v1=use_v1, path_params=path_params, **kwargs))
-
+                return asyncio.run(self._get_entity_list(name, use_v1=use_v1, path_params=path_params, **kwargs))
             else:
                 return self._make_request(method, name, use_v1=use_v1, path_params=path_params, data=data, params=kwargs)
 
