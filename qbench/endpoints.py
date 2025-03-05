@@ -124,7 +124,7 @@ QBENCH_ENDPOINTS = {
     "delete_invoice_item": {"method": "DELETE", "v2": "invoice-items/{id}", "v1": None},
 
     # KVSTORE
-    "get_kvstore": {"method": "GET", "v2": "kvstores/{id}", "v1": None},
+    "get_kvstore": {"method": "GET", "v2": None, "v1": "kvstore/{id}"},
 
     # LABEL
     "print_order_labels": {"method": "POST", "v2": "labels/{id}/orders", "v1": None},
