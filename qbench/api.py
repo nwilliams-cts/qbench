@@ -78,7 +78,7 @@ class QBenchAPI:
             response.raise_for_status()
             return (await response.json()) or {'data': []}
 
-    async def _get_entity_list(self, endpoint_key: str, use_v1: bool = False, path_params: Optional[Dict] = {}, **kwargs):
+    async def _get_entity_list(self, endpoint_key: str, use_v1: bool = False, page_limit: Optional[int] = None, path_params: Optional[Dict] = {}, **kwargs):
         version = "v1" if use_v1 else "v2"
         base_url = f"{self._base_url_v1 if use_v1 else self._base_url}"
 
@@ -93,7 +93,7 @@ class QBenchAPI:
             page_1_res = await self._fetch_page(session, url, 1, kwargs)
             page_1_data = page_1_res.get('data') or []
 
-            page_limit = page_1_res.get('total_pages') or 1
+            page_limit = page_limit or page_1_res.get('total_pages') or 1
             entity_array.extend(page_1_data)
 
             if page_limit > 1:
@@ -110,13 +110,23 @@ class QBenchAPI:
         if name not in QBENCH_ENDPOINTS:
             raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
         
-        def dynamic_method(entity_id: Optional[int] = None, use_v1: bool = False, data: Optional[Dict] = None, **kwargs):
+        async def async_dynamic_method(entity_id: Optional[int] = None, use_v1: bool = False, page_limit: Optional[int] = None, data: Optional[Dict] = None, **kwargs):
             path_params = {"id": entity_id} if entity_id else {}
             method = QBENCH_ENDPOINTS[name].get('method', 'GET')
 
             if QBENCH_ENDPOINTS[name].get('paginated'):
-                return asyncio.run(self._get_entity_list(name, use_v1=use_v1, path_params=path_params, **kwargs))
+                return await self._get_entity_list(name, use_v1=use_v1, page_limit=page_limit, path_params=path_params, **kwargs)
             else:
-                return self._make_request(method, name, use_v1=use_v1, path_params=path_params, data=data, params=kwargs)
+                loop = asyncio.get_running_loop()
+                return await loop.run_in_executor(None, self._make_request, method, name, use_v1, kwargs, data, path_params)
 
+        def dynamic_method(entity_id: Optional[int] = None, use_v1: bool = False, data: Optional[Dict] = None, page_limit: Optional[int] = None, **kwargs):
+            try:
+                loop = asyncio.get_running_loop()
+                # If there's an active event loop, return coroutine
+                return async_dynamic_method(entity_id=entity_id, use_v1=use_v1, page_limit=page_limit, data=data, **kwargs)
+            except RuntimeError:
+                # No active event loop; safe to call asyncio.run()
+                return asyncio.run(async_dynamic_method(entity_id=entity_id, use_v1=use_v1, page_limit=page_limit, data=data, **kwargs))
+            
         return dynamic_method

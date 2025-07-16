@@ -1,5 +1,6 @@
-requests==2.32.3
-tenacity==9.0.0
-aiohttp==3.11.13
-asyncio==3.4.3
-jwt==1.3.1
+requests
+attrs
+aiohttp
+pyjwt
+pytz
+tenacity
