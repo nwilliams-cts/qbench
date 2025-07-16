@@ -236,8 +236,9 @@ class QBenchAPI:
         use_v1: bool = False, 
         page_limit: Optional[int] = None, 
         path_params: Optional[Dict[str, Any]] = None, 
+        include_metadata: bool = False,
         **kwargs
-    ) -> Dict[str, List[Dict[str, Any]]]:
+    ) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
         """
         Get a paginated list of entities with concurrent page fetching.
         
@@ -246,10 +247,11 @@ class QBenchAPI:
             use_v1: Whether to use v1 API
             page_limit: Maximum number of pages to fetch (None for all)
             path_params: Parameters for URL formatting
+            include_metadata: Whether to include full response metadata
             **kwargs: Additional query parameters
             
         Returns:
-            Dict with 'data' key containing all entities
+            List of entities (if include_metadata=False) or Dict with full metadata
         """
         if path_params is None:
             path_params = {}
@@ -312,7 +314,20 @@ class QBenchAPI:
                 raise
 
         logger.debug(f"Retrieved {len(entity_array)} entities for {endpoint_key}")
-        return {'data': entity_array}
+        
+        # Return response based on include_metadata flag
+        full_response = {'data': entity_array}
+        if include_metadata:
+            # Include metadata from the first page response
+            if page_1_res:
+                full_response.update({
+                    k: v for k, v in page_1_res.items() 
+                    if k != 'data'
+                })
+            return full_response
+        else:
+            # Return just the entity array
+            return entity_array
 
     def __getattr__(self, name: str):
         """
@@ -344,6 +359,7 @@ class QBenchAPI:
             use_v1: bool = False, 
             page_limit: Optional[int] = None, 
             data: Optional[Dict[str, Any]] = None, 
+            include_metadata: bool = False,
             **kwargs
         ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
             """
@@ -354,26 +370,28 @@ class QBenchAPI:
                 use_v1: Whether to use v1 API
                 page_limit: Max pages for paginated endpoints
                 data: Request body for POST/PATCH/PUT requests
+                include_metadata: Whether to include API metadata (default: False)
                 **kwargs: Additional query parameters
                 
             Returns:
-                API response data
+                API response data (just the data by default, full response if include_metadata=True)
             """
             path_params = {"id": entity_id} if entity_id else {}
             method = endpoint_config.get('method', 'GET')
 
             if endpoint_config.get('paginated'):
-                return await self._get_entity_list(
+                result = await self._get_entity_list(
                     name, 
                     use_v1=use_v1, 
                     page_limit=page_limit, 
                     path_params=path_params, 
+                    include_metadata=include_metadata,
                     **kwargs
                 )
             else:
                 # Run synchronous method in thread pool for non-paginated endpoints
                 loop = asyncio.get_running_loop()
-                return await loop.run_in_executor(
+                result = await loop.run_in_executor(
                     None, 
                     self._make_request, 
                     method, 
@@ -383,12 +401,19 @@ class QBenchAPI:
                     data, 
                     path_params
                 )
+                
+                # Extract data if not including metadata
+                if not include_metadata and isinstance(result, dict) and 'data' in result:
+                    result = result['data']
+                    
+            return result
 
         def dynamic_method(
             entity_id: Optional[int] = None, 
             use_v1: bool = False, 
             data: Optional[Dict[str, Any]] = None, 
             page_limit: Optional[int] = None, 
+            include_metadata: bool = False,
             **kwargs
         ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
             """
@@ -399,10 +424,11 @@ class QBenchAPI:
                 use_v1: Whether to use v1 API  
                 data: Request body for POST/PATCH/PUT requests
                 page_limit: Max pages for paginated endpoints
+                include_metadata: Whether to include API metadata (default: False)
                 **kwargs: Additional query parameters
                 
             Returns:
-                API response data
+                API response data (just the data by default, full response if include_metadata=True)
             """
             try:
                 # Check if we're in an async context
@@ -413,6 +439,7 @@ class QBenchAPI:
                     use_v1=use_v1, 
                     page_limit=page_limit, 
                     data=data, 
+                    include_metadata=include_metadata,
                     **kwargs
                 )
             except RuntimeError:
@@ -423,6 +450,7 @@ class QBenchAPI:
                         use_v1=use_v1, 
                         page_limit=page_limit, 
                         data=data, 
+                        include_metadata=include_metadata,
                         **kwargs
                     )
                 )
@@ -440,17 +468,22 @@ class QBenchAPI:
             use_v1 (bool): Use v1 API instead of v2 (default: False)
             data (dict, optional): Request body for POST/PATCH/PUT requests
             page_limit (int, optional): Max pages for paginated requests (None = all)
+            include_metadata (bool): Include full API response metadata (default: False)
             **kwargs: Additional query parameters
             
         Returns:
-            dict: API response data
+            By default returns just the data (list or dict).
+            If include_metadata=True, returns full API response with metadata.
             
         Example:
-            # Get single entity
-            result = qb.{name}(entity_id=123)
+            # Get single entity (returns just the entity data)
+            entity = qb.{name}(entity_id=123)
             
-            # Get list with filters
-            results = qb.{name}(status='active', limit=50)
+            # Get list with filters (returns just the list of entities)
+            entities = qb.{name}(status='active', limit=50)
+            
+            # Get full response with metadata
+            full_response = qb.{name}(include_metadata=True)
             
             # Create new entity
             new_entity = qb.{name}(data={{"name": "Example"}})
