@@ -14,9 +14,9 @@ def basic_connection_example():
     try:
         # Connect to QBench
         qb = qbench.connect(
-            base_url="https://origo.qbench.net",
-            api_key="341ceb1b-1c18-40aa-a15f-2e3e0fa677e0",
-            api_secret="4426c27b-c78f-4883-a7de-036731a278b0"
+            base_url="https://your-instance.qbench.net",
+            api_key="your-api-key",
+            api_secret="your-api-secret"
         )
         
         # Perform health check
@@ -142,9 +142,9 @@ async def async_operations_example():
     """Example of using the SDK in async context."""
     try:
         qb = qbench.connect(
-            base_url="https://origo.qbench.net",
-            api_key="341ceb1b-1c18-40aa-a15f-2e3e0fa677e0",
-            api_secret="4426c27b-c78f-4883-a7de-036731a278b0"
+            base_url="https://your-instance.qbench.net",
+            api_key="your-api-key",
+            api_secret="your-api-secret"
         )
         
         # In async context, these calls return coroutines
