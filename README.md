@@ -38,7 +38,7 @@ import qbench
 
 # Connect to your QBench instance
 qb = qbench.connect(
-    base_url="https://your-qbench-instance.com",
+    base_url="https://your-qbench-instance.qbench.net",
     api_key="your_api_key",
     api_secret="your_api_secret"
 )
