@@ -14,7 +14,7 @@ def basic_connection_example():
     try:
         # Connect to QBench
         qb = qbench.connect(
-            base_url="https://your-instance.qbench.net",
+            base_url="https://your-qbench-instance.qbench.net",
             api_key="your-api-key",
             api_secret="your-api-secret"
         )
@@ -41,7 +41,7 @@ def sample_operations_example(qb):
     """Examples of working with samples."""
     try:
         # Get a specific sample (now returns just the sample data by default)
-        sample = qb.get_sample(entity_id=1234)
+        sample = qb.get_sample(1234)
         print(f"Sample 1234: {sample.get('description', 'N/A')}")
         
         # Get first page of samples (returns just the list of samples)
@@ -142,7 +142,7 @@ async def async_operations_example():
     """Example of using the SDK in async context."""
     try:
         qb = qbench.connect(
-            base_url="https://your-instance.qbench.net",
+            base_url="https://your-qbench-instance.qbench.net",
             api_key="your-api-key",
             api_secret="your-api-secret"
         )

@@ -48,18 +48,18 @@ health = qb.health_check()
 print(f"API Status: {health['status']}")
 
 # Get a specific sample
-sample = qb.get_sample(entity_id=1234)
+sample = qb.get_sample(1234)
 print(f"Sample: {sample}")
 
 # Get all customers (automatically paginated)
 customers = qb.get_customers()
-print(f"Total customers: {len(customers['data'])}")
+print(f"Total customers: {len(customers)}")
 
 # Search with filters
-filtered_samples = qb.get_samples(status="active", page_limit=2)
+filtered_samples = qb.get_samples(status="Completed", page_limit=2)
 
-# Use v1 API when needed  
-legacy_data = qb.get_samples(use_v1=True)
+# Use v1 API when needed. Required for some endpoints.  
+kvstore = qb.get_kvstore("xxxxx-xxxxxxxx-xxxxxxxxxx", use_v1=True)
 
 # Create new records
 new_customer = qb.create_customers(data={
@@ -104,12 +104,12 @@ The SDK dynamically generates methods based on the QBench API. Common patterns:
 
 ```python
 # GET single entity
-sample = qb.get_sample(entity_id=123)
-customer = qb.get_customer(entity_id=456)
+sample = qb.get_sample(123)
+customer = qb.get_customer(456)
 
 # GET collections (with automatic pagination)
 all_samples = qb.get_samples()
-active_orders = qb.get_orders(status="active")
+active_orders = qb.get_orders(status="Placed")
 
 # CREATE entities
 new_sample = qb.create_samples(data={...})
@@ -119,9 +119,9 @@ new_customer = qb.create_customers(data={...})
 updated = qb.update_samples(entity_id=123, data={...})
 modified = qb.update_customers(entity_id=456, data={...})
 
-# DELETE entities
-qb.delete_sample(entity_id=123)
-qb.delete_customer(entity_id=456)
+# DELETE entities. Note: Some QBench modules prevent deletion operations.
+qb.delete_sample(123)
+qb.delete_customer(456)
 ```
 
 See the [full endpoint documentation](qbench/endpoints.py) for all 200+ available methods.
@@ -139,14 +139,14 @@ QBench uses JWT-based authentication with automatic token management. You'll nee
 ```python
 # Basic connection
 qb = qbench.connect(
-    base_url="https://your-instance.qbench.com", 
+    base_url="https://your-instance.qbench.net", 
     api_key="your_api_key_here",
     api_secret="your_secret_here"
 )
 
 # Advanced configuration
 qb = qbench.connect(
-    base_url="https://your-instance.qbench.com",
+    base_url="https://your-instance.qbench.net",
     api_key="your_api_key_here", 
     api_secret="your_secret_here",
     timeout=30,              # Request timeout in seconds
@@ -155,28 +155,7 @@ qb = qbench.connect(
 )
 ```
 
-### Environment Variables
-
-For security, you can use environment variables:
-
-```bash
-export QBENCH_BASE_URL="https://your-instance.qbench.com"
-export QBENCH_API_KEY="your_api_key"
-export QBENCH_API_SECRET="your_secret"
-```
-
-```python
-import os
-import qbench
-
-qb = qbench.connect(
-    base_url=os.getenv("QBENCH_BASE_URL"),
-    api_key=os.getenv("QBENCH_API_KEY"), 
-    api_secret=os.getenv("QBENCH_API_SECRET")
-)
-```
-
-### Advanced Usage
+### Additional Usage
 
 ```python
 # Connection health monitoring
@@ -196,16 +175,13 @@ all_samples = qb.get_samples(page_limit=None)    # Get all pages
 limited = qb.get_samples(page_limit=5)           # First 5 pages only
 single_page = qb.get_samples(page_limit=1)       # Just first page
 
-# Use v1 API when needed for specific endpoints
-legacy_data = qb.get_samples(use_v1=True)
-
 # Concurrent processing with rate limiting
 qb = qbench.connect(..., concurrency_limit=5)  # Max 5 concurrent requests
 ```
 
 ## Error Handling
 
-The SDK provides comprehensive error handling with custom exceptions:
+The SDK provides error handling with custom exceptions:
 
 ```python
 from qbench.exceptions import (
@@ -256,18 +232,18 @@ import qbench
 
 async def main():
     qb = qbench.connect(
-        base_url="https://your-instance.qbench.com",
+        base_url="https://your-instance.qbench.net",
         api_key="your_api_key",
         api_secret="your_secret"
     )
     
     # These calls are naturally async when called from async context
-    sample = await qb.get_sample(entity_id=1234)
+    sample = await qb.get_sample(1234)
     customers = await qb.get_customers()
     
     # Concurrent operations
     tasks = [
-        qb.get_sample(entity_id=i) 
+        qb.get_sample(i)
         for i in range(1000, 1010)
     ]
     results = await asyncio.gather(*tasks)
@@ -279,12 +255,10 @@ asyncio.run(main())
 
 # Or use sync mode (automatically detected)
 qb = qbench.connect(...)
-sample = qb.get_sample(entity_id=1234)  # Sync call
+sample = qb.get_sample(1234)  # Sync call
 customers = qb.get_customers()          # Sync call
 qb.close()
 ```
-
-## Development
 
 ### Setup
 
@@ -378,11 +352,10 @@ See the [examples/](examples/) directory for complete usage examples:
 
 ## Package Information
 
-- **Version**: 1.0.0
+- **Version**: 0.1.1
 - **Python**: >=3.8
 - **Dependencies**: requests, aiohttp, tenacity, python-dateutil
 - **License**: MIT
-- **Test Coverage**: 91%
 
 ## Contributing
 

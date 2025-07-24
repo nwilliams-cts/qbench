@@ -22,6 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
@@ -48,8 +49,8 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/nwilliams-cts/qbench"
-Documentation = "https://junctionconcepts.zendesk.com/hc/en-us/articles/360030760992-QBench-REST-API-v1-0-Documentation-Full"
+PYPI = "https://pypi.org/project/qbench"
+QBench Documentation = "https://junctionconcepts.zendesk.com/hc/en-us/articles/360030760992-QBench-REST-API-v1-0-Documentation-Full"
 Repository = "https://github.com/nwilliams-cts/qbench.git"
 Issues = "https://github.com/nwilliams-cts/qbench/issues"
 

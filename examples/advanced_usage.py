@@ -156,7 +156,7 @@ async def batch_operations_example():
     """Example of batch operations and concurrent processing."""
     
     qb = qbench.connect(
-        base_url="https://your-qbench-instance.com",
+        base_url="https://your-qbench-instance.qbench.net",
         api_key="your_api_key",
         api_secret="your_api_secret"
     )
@@ -177,14 +177,14 @@ async def batch_operations_example():
             samples_task, customers_task, orders_task, assays_task
         )
         
-        print(f"Fetched: {len(samples['data'])} samples, "
-              f"{len(customers['data'])} customers, "
-              f"{len(orders['data'])} orders, "
-              f"{len(assays['data'])} assays")
+        print(f"Fetched: {len(samples)} samples, "
+              f"{len(customers)} customers, "
+              f"{len(orders)} orders, "
+              f"{len(assays)} assays")
         
         # Example 2: Process samples in batches
-        if samples['data']:
-            sample_ids = [s['id'] for s in samples['data'][:5]]  # First 5 samples
+        if samples:
+            sample_ids = [s['id'] for s in samples[:5]]  # First 5 samples
             print(f"Updating status for samples: {sample_ids}")
             
             # Uncomment to actually update
@@ -200,7 +200,7 @@ def data_analysis_example():
     """Example of data analysis and reporting."""
     
     qb = qbench.connect(
-        base_url="https://your-qbench-instance.com",
+        base_url="https://your-qbench-instance.qbench.net",
         api_key="your_api_key",
         api_secret="your_api_secret"
     )
@@ -242,7 +242,7 @@ def integration_example():
     """Example of integrating QBench with external systems."""
     
     qb = qbench.connect(
-        base_url="https://your-qbench-instance.com",
+        base_url="https://your-qbench-instance.qbench.net",
         api_key="your_api_key",
         api_secret="your_api_secret"
     )
@@ -251,8 +251,7 @@ def integration_example():
         # Example: Sync QBench customers with external CRM
         print("Syncing customer data...")
         
-        customers_data = qb.get_customers()
-        customers = customers_data.get('data', [])
+        customers = qb.get_customers()
         
         # Process customers for external system
         external_format = []
@@ -274,18 +273,18 @@ def integration_example():
         # Example: Monitor sample status changes
         print("\nMonitoring sample statuses...")
         
-        # Get samples that might need attention
-        pending_samples = qb.get_samples(status='pending')
-        in_progress_samples = qb.get_samples(status='in_progress')
-        
-        print(f"Pending samples: {len(pending_samples['data'])}")
-        print(f"In progress samples: {len(in_progress_samples['data'])}")
-        
-        # Alert if too many pending samples
-        if len(pending_samples['data']) > 50:
-            print("⚠️  Alert: High number of pending samples!")
-            # send_alert_notification(pending_samples['data'])
-        
+        # Get tests that might need attention
+        pending_tests = qb.get_tests(status='NOT STARTED')
+        in_progress_tests = qb.get_tests(status='IN PROGRESS')
+
+        print(f"Pending tests: {len(pending_tests)}")
+        print(f"In progress tests: {len(in_progress_tests)}")
+
+        # Alert if too many pending tests
+        if len(pending_tests) > 50:
+            print("⚠️  Alert: High number of pending tests!")
+            # send_alert_notification(pending_tests)
+
     except Exception as e:
         print(f"Error in integration: {e}")
     finally:
@@ -296,7 +295,7 @@ def custom_endpoint_example():
     """Example of working with specific endpoint configurations."""
     
     qb = qbench.connect(
-        base_url="https://your-qbench-instance.com",
+        base_url="https://your-qbench-instance.qbench.net",
         api_key="your_api_key",
         api_secret="your_api_secret"
     )
