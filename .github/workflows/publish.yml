@@ -26,6 +26,19 @@ jobs:
       - name: Clean previous builds
         run: |
           rm -rf dist/ build/ *.egg-info/
+      - name: Debug version before build
+        run: |
+          python -c "
+          import os, re
+          version_file = os.path.join('qbench', '__init__.py')
+          with open(version_file, 'r') as f:
+              content = f.read()
+              version_match = re.search(r\"^__version__ = ['\\\"](.*?)['\\\"]\", content, re.M)
+              if version_match:
+                  print(f'Version found in __init__.py: {version_match.group(1)}')
+              else:
+                  print('Version not found in __init__.py')
+          "
       - name: Build package
         run: |
           python -m build  # This is the modern recommended way
