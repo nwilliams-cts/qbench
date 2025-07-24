@@ -50,7 +50,7 @@ dev = [
 
 [project.urls]
 PYPI = "https://pypi.org/project/qbench"
-QBench Documentation = "https://junctionconcepts.zendesk.com/hc/en-us/articles/360030760992-QBench-REST-API-v1-0-Documentation-Full"
+Documentation = "https://junctionconcepts.zendesk.com/hc/en-us/articles/360030760992-QBench-REST-API-v1-0-Documentation-Full"
 Repository = "https://github.com/nwilliams-cts/qbench.git"
 Issues = "https://github.com/nwilliams-cts/qbench/issues"
 
