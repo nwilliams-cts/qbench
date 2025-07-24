@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "qbench-sdk"
+name = "qbench"
 version = "0.1.0"
 description = "Python SDK for QBench LIMS API"
 readme = "README.md"

@@ -17,14 +17,6 @@ A modern, production-ready Python SDK for the QBench LIMS API that provides a si
 
 ## Installation
 
-### From Private Repository
-
-Install directly from GitHub (private repository):
-
-```bash
-pip install git+https://github.com/nwilliams-cts/qbench.git
-```
-
 ### For Development
 
 ```bash
@@ -35,10 +27,8 @@ pip install -e .[dev]
 
 ### As a Package
 
-Once published to a private PyPI or package repository:
-
 ```bash
-pip install qbench-sdk
+pip install qbench
 ```
 
 ## Quick Start
