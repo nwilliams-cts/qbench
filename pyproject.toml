@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qbench"
-version = "0.1.1"
+dynamic = ["version"]
 description = "Python SDK for QBench LIMS API"
 readme = "README.md"
 license = {text = "MIT"}
@@ -58,6 +58,9 @@ Issues = "https://github.com/nwilliams-cts/qbench/issues"
 where = ["."]
 include = ["qbench*"]
 exclude = ["tests*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "qbench.__version__"}
 
 [tool.setuptools.package-data]
 qbench = ["py.typed"]

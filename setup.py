@@ -1,6 +1,12 @@
 """Setup script for QBench Python SDK."""
 
 from setuptools import setup, find_packages
+import os
+import sys
+
+# Add the package directory to the path to import version
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'qbench'))
+from qbench import __version__
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -10,7 +16,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="qbench",
-    version="0.1.1",
+    version=__version__,
     author="Smithers",
     author_email="nwilliams@smithers.com",
     description="Python SDK for QBench LIMS API",
