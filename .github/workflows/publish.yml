@@ -6,7 +6,7 @@ on:
 
 jobs:
   pypi-publish:
-    name: Publish new release to PyPI
+    name: Publish release to PyPI
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -19,32 +19,8 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install build setuptools wheel
-      - name: Clean previous builds
-        run: |
-          rm -rf dist/ build/ *.egg-info/
-      - name: Debug version before build
-        run: |
-          python -c "
-          import os, re
-          version_file = os.path.join('qbench', '__init__.py')
-          with open(version_file, 'r') as f:
-              content = f.read()
-              version_match = re.search(r\"^__version__ = ['\\\"](.*?)['\\\"]\", content, re.M)
-              if version_match:
-                  print(f'Version found in __init__.py: {version_match.group(1)}')
-              else:
-                  print('Version not found in __init__.py')
-          "
       - name: Build package
         run: |
-          python -m build  # This is the modern recommended way
-      - name: Check built packages
-        run: |
-          ls -la dist/
-          python -c "import qbench; print(f'Version: {qbench.__version__}')"
+          python -m build
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
