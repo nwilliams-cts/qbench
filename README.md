@@ -8,14 +8,21 @@ A modern, production-ready Python SDK for the QBench LIMS API that provides a si
 - **Comprehensive API coverage** with 200+ endpoints (v1 and v2)
 - **Automatic pagination** with configurable limits and concurrent page fetching
 - **Robust authentication** with JWT token management and automatic refresh
-- **Advanced error handling** with custom exceptions and retry logic
+- **Basic error handling** with custom exceptions and retry logic
 - **Type hints throughout** for excellent IDE support and development experience
 - **Concurrent request handling** with rate limiting and connection pooling
 - **Dynamic method generation** based on available endpoints
-- **Comprehensive test suite** with 91% code coverage
+- **Trivial to include new endpoints** simply add to the dict in endpoints.py
 - **Production-ready packaging** with modern Python tooling
 
 ## Installation
+
+### As a Package
+
+```bash
+pip install qbench
+```
+
 
 ### For Development
 
@@ -23,12 +30,6 @@ A modern, production-ready Python SDK for the QBench LIMS API that provides a si
 git clone https://github.com/nwilliams-cts/qbench.git
 cd qbench
 pip install -e .[dev]
-```
-
-### As a Package
-
-```bash
-pip install qbench
 ```
 
 ## Quick Start
@@ -58,7 +59,7 @@ print(f"Total customers: {len(customers)}")
 # Search with filters
 filtered_samples = qb.get_samples(status="Completed", page_limit=2)
 
-# Use v1 API when needed. Required for some endpoints.  
+# Use v1 API when needed. Required for some endpoints such as kvstores.
 kvstore = qb.get_kvstore("xxxxx-xxxxxxxx-xxxxxxxxxx", use_v1=True)
 
 # Create new records
@@ -71,36 +72,9 @@ new_customer = qb.create_customers(data={
 qb.close()
 ```
 
-## API Coverage
-
-The SDK provides comprehensive coverage of the QBench API with 200+ endpoints across both v1 and v2 APIs:
-
-### Core Entities
-- **Samples**: Full CRUD operations with filtering and batch processing
-- **Customers**: Customer management and relationship tracking  
-- **Orders**: Order lifecycle management
-- **Assays**: Laboratory test and assay management
-- **Tests**: Individual test result handling
-- **Invoicing**: Complete billing and payment processing
-- **Reports**: Access to QBench reporting system
-
-### Laboratory Management
-- **Batches**: Sample batch processing and tracking
-- **Worksheets**: Laboratory worksheet management
-- **Turnarounds**: SLA and timing management
-- **Locations**: Sample location and storage tracking
-- **Projects**: Project-based sample organization
-
-### Advanced Features
-- **File Management**: Attachment upload and management
-- **User Management**: User accounts and permissions
-- **API Client Management**: API access control
-- **Label Printing**: Barcode and label generation
-- **Payment Processing**: Invoice and payment handling
-
 ### Available Methods
 
-The SDK dynamically generates methods based on the QBench API. Common patterns:
+The SDK dynamically generates methods based on the QBench API once added to endpoints.py. Common patterns:
 
 ```python
 # GET single entity
@@ -349,13 +323,6 @@ See the [examples/](examples/) directory for complete usage examples:
 
 - [QBench REST API v1 Documentation](https://junctionconcepts.zendesk.com/hc/en-us/articles/360030760992-QBench-REST-API-v1-0-Documentation-Full)
 - [API v2 Swagger Definition](example_v2_swagger.json) (included in repository)
-
-## Package Information
-
-- **Version**: 0.1.1
-- **Python**: >=3.8
-- **Dependencies**: requests, aiohttp, tenacity, python-dateutil
-- **License**: MIT
 
 ## Contributing
 

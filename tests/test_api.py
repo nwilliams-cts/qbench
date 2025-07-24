@@ -549,11 +549,11 @@ class TestQBenchAPI:
                 result = await qb_client._get_entity_list('get_samples')
                 
                 # Should have combined all pages
-                assert len(result['data']) == 3
-                assert result['data'][0]['id'] == 1
-                assert result['data'][1]['id'] == 2
-                assert result['data'][2]['id'] == 3
-                
+                assert len(result) == 3
+                assert result[0]['id'] == 1
+                assert result[1]['id'] == 2
+                assert result[2]['id'] == 3
+
                 # Should have called fetch_page for each page
                 assert mock_fetch.call_count == 3
     
@@ -580,7 +580,7 @@ class TestQBenchAPI:
                 # Limit to 2 pages even though there are 5 total
                 result = await qb_client._get_entity_list('get_samples', page_limit=2)
                 
-                assert len(result['data']) == 2
+                assert len(result) == 2
                 assert mock_fetch.call_count == 2
     
     @pytest.mark.asyncio
