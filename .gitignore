@@ -4,6 +4,10 @@ __pycache__/
 *$py.class
 .venv/
 
+# Safety
+.safety-project.ini
+.github/copilot-instructions.md
+
 # C extensions
 *.so
 
