@@ -1,5 +1,5 @@
-requests>=2.32.0
-aiohttp>=3.12.0
+requests>=2.32.4
+aiohttp>=3.12.14
 PyJWT>=2.10.0
 tenacity>=8.0.0
 typing-extensions>=4.0.0; python_version<"3.10"
