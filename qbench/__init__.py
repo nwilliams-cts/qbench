@@ -1,6 +1,6 @@
 """QBench SDK - A Python SDK for QBench LIMS API."""
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 __author__ = "Smithers"
 __email__ = "nwilliams@smithers.com"
 __description__ = "Python SDK for QBench LIMS API"

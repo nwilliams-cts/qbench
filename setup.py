@@ -10,7 +10,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="qbench",
-    version="1.0.1",
+    version="1.0.2",
     author="Smithers",
     author_email="nwilliams@smithers.com",
     description="Python SDK for QBench LIMS API",
