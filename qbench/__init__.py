@@ -1,6 +1,6 @@
 """QBench SDK - A Python SDK for QBench LIMS API."""
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "Smithers"
 __email__ = "nwilliams@smithers.com"
 __description__ = "Python SDK for QBench LIMS API"
@@ -31,7 +31,7 @@ def connect(base_url: str, api_key: str, api_secret: str, **kwargs) -> QBenchAPI
     Example:
         >>> import qbench
         >>> qb = qbench.connect(
-        ...     base_url="https://your-instance.qbench.com",
+        ...     base_url="https://your-instance.qbench.net",
         ...     api_key="your_key",
         ...     api_secret="your_secret"
         ... )
